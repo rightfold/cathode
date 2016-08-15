@@ -27,9 +27,22 @@ ui = createClass $ spec {derivative: Original} \this -> do
                  , P.className (if next == derivative then "-current" else "")
                  ]
                  text
+  let tabs = D.nav [P.className "-tabs"]
+                   [ tab Original [D.text "ℂ"]
+                   , tab Arrow    [D.text "ℂ", D.sup [] [D.text "→"]]
+                   , tab Opposite [D.text "ℂ", D.sup [] [D.text "op"]]
+                   ]
+
+  let listItemSuffix = case derivative of
+                         Original -> []
+                         Arrow    -> [D.sup [] [D.text "→"]]
+                         Opposite -> [D.sup [] [D.text "op"]]
+  let listItem name = D.li [] ([D.text name] <> listItemSuffix)
+  let list = D.ul [P.className "-list"]
+                  [ listItem "Poset"
+                  , listItem "Purs"
+                  , listItem "Set"
+                  ]
 
   pure $ D.div [P.className "cathode--category-list"]
-               [ tab Original [D.text "ℂ"]
-               , tab Arrow    [D.text "ℂ", D.sup [] [D.text "→"]]
-               , tab Opposite [D.text "ℂ", D.sup [] [D.text "op"]]
-               ]
+               [tabs, list]
