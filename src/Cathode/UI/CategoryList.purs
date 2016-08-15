@@ -6,7 +6,7 @@ module Cathode.UI.CategoryList
 ) where
 
 import Prelude
-import React (createClass, ReactClass, readState, spec, transformState)
+import React (createClass, ReactClass, ReactElement, readState, spec, transformState)
 import React.DOM as D
 import React.DOM.Props as P
 
@@ -22,22 +22,15 @@ ui :: forall props. ReactClass {| props}
 ui = createClass $ spec {derivative: Original} \this -> do
   derivative <- _.derivative <$> readState this
 
-  let tab next text =
+  let tab next =
         D.button [ P.onClick \_ -> transformState this (_ {derivative = next})
                  , P.className (if next == derivative then "-current" else "")
                  ]
-                 text
+                 ([D.text "ℂ"] <> derivativeSuffix next)
   let tabs = D.nav [P.className "-tabs"]
-                   [ tab Original [D.text "ℂ"]
-                   , tab Arrow    [D.text "ℂ", D.sup [] [D.text "→"]]
-                   , tab Opposite [D.text "ℂ", D.sup [] [D.text "op"]]
-                   ]
+                   [tab Original, tab Arrow, tab Opposite]
 
-  let listItemSuffix = case derivative of
-                         Original -> []
-                         Arrow    -> [D.sup [] [D.text "→"]]
-                         Opposite -> [D.sup [] [D.text "op"]]
-  let listItem name = D.li [] ([D.text name] <> listItemSuffix)
+  let listItem name = D.li [] ([D.text name] <> derivativeSuffix derivative)
   let list = D.ul [P.className "-list"]
                   [ listItem "Poset"
                   , listItem "Purs"
@@ -46,3 +39,8 @@ ui = createClass $ spec {derivative: Original} \this -> do
 
   pure $ D.div [P.className "cathode--category-list"]
                [tabs, list]
+
+derivativeSuffix :: Derivative -> Array ReactElement
+derivativeSuffix Original = []
+derivativeSuffix Arrow    = [D.sup [] [D.text "→"]]
+derivativeSuffix Opposite = [D.sup [] [D.text "op"]]
